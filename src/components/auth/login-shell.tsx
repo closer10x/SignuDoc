@@ -12,6 +12,11 @@ import {
 } from "@/components/auth/sso-button";
 import { FieldShell, ShellButton } from "@/components/shared/form-shell";
 import { authClient } from "@/lib/auth/client";
+import {
+  MIN_PASSWORD_LENGTH,
+  passwordMinLengthHelper,
+  passwordTooShortMessage,
+} from "@/lib/password";
 import { forgotPasswordSchema, loginSchema } from "@/lib/schemas/auth";
 import {
   Dialog,
@@ -632,8 +637,8 @@ function ResetPasswordCard({ resetToken }: { resetToken: string }) {
       formData.get("reset-password") ?? password,
     ).trim();
 
-    if (trimmedPassword.length < 15) {
-      setError("Password must be at least 15 characters");
+    if (trimmedPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(passwordTooShortMessage);
       setSuccessMessage(null);
       return;
     }
@@ -655,7 +660,7 @@ function ResetPasswordCard({ resetToken }: { resetToken: string }) {
         normalizedErrorMessage.includes("invalid token")
           ? "This reset link is invalid or has expired."
           : normalizedErrorMessage.includes("password too short")
-            ? "Password must be at least 15 characters"
+            ? passwordTooShortMessage
             : normalizedErrorMessage.includes("compromised")
               ? "Choose a password that hasn't appeared in a breach"
               : "Something went wrong. Please try again.",
@@ -699,7 +704,7 @@ function ResetPasswordCard({ resetToken }: { resetToken: string }) {
             autoComplete="new-password"
             disabled={formLocked}
             error={error ?? undefined}
-            helper="Must be at least 15 characters"
+            helper={passwordMinLengthHelper}
             label="New password"
             name="reset-password"
             onChange={(event) => {

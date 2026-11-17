@@ -155,7 +155,7 @@ test("a new install's form is told about every field at once, the account's incl
       email: "owner@acme.com",
       fullName: "Olive Owner",
       organizationName: "Acme Corp",
-      password: "too short",
+      password: "short",
       supportAddress: "not an address",
     }),
     ["password", "supportAddress"],

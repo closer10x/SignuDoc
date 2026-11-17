@@ -11,6 +11,10 @@ import {
 import { SsoButton, type SsoOption } from "@/components/auth/sso-button";
 import { FieldShell, ShellButton } from "@/components/shared/form-shell";
 import { authClient } from "@/lib/auth/client";
+import {
+  passwordMinLengthHelper,
+  passwordTooShortMessage,
+} from "@/lib/password";
 import { signUpSchema } from "@/lib/schemas/auth";
 
 const defaultSuccessMessage = "Check your email to verify your sender account.";
@@ -178,7 +182,7 @@ function SignupFormCard({
               autoComplete="new-password"
               disabled={formLocked}
               error={errors.password}
-              helper="Must be at least 15 characters"
+              helper={passwordMinLengthHelper}
               label="Password"
               name="signup-password"
               onChange={onPasswordChange}
@@ -380,7 +384,7 @@ function LiveSignupShell({
         }
 
         if (field === "password") {
-          nextErrors.password = "Password must be at least 15 characters";
+          nextErrors.password = passwordTooShortMessage;
         }
       }
 
@@ -422,7 +426,7 @@ function LiveSignupShell({
         });
       } else if (normalizedErrorMessage.includes("password too short")) {
         setErrors({
-          password: "Password must be at least 15 characters",
+          password: passwordTooShortMessage,
         });
       } else if (normalizedErrorMessage.includes("compromised")) {
         setErrors({

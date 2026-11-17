@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { MIN_PASSWORD_LENGTH } from "../password.ts";
 import {
   emailSchema,
   idSchema,
@@ -13,7 +14,7 @@ export const accountClosureConfirmationPhrase = "close my account" as const;
 export const signUpSchema = z.object({
   fullName: nameSchema,
   email: emailSchema,
-  password: z.string().min(15).max(128),
+  password: z.string().min(MIN_PASSWORD_LENGTH).max(128),
 });
 
 export const loginSchema = z.object({
@@ -32,7 +33,7 @@ export const updateProfileSchema = z.object({
 
 export const updatePasswordSchema = z.object({
   currentPassword: nonEmptyStringSchema,
-  newPassword: z.string().min(15).max(128),
+  newPassword: z.string().min(MIN_PASSWORD_LENGTH).max(128),
 });
 
 export const accountClosureRequestSchema = z.object({

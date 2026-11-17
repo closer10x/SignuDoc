@@ -9,6 +9,7 @@ import type { Pool } from "pg";
 import { cache } from "react";
 
 import { type Branding } from "../branding.ts";
+import { MIN_PASSWORD_LENGTH } from "../password.ts";
 import { getDb } from "../db/connection.ts";
 import {
   createEmailService,
@@ -406,7 +407,7 @@ export function createAppAuth({
     emailAndPassword: {
       enabled: true,
       maxPasswordLength: 128,
-      minPasswordLength: 15,
+      minPasswordLength: MIN_PASSWORD_LENGTH,
       requireEmailVerification: true,
       revokeSessionsOnPasswordReset: true,
       onPasswordReset: async ({ user }) => {

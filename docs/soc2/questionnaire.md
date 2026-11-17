@@ -22,7 +22,7 @@ Yes, OpenID Connect with any compliant identity provider, including Okta, Micros
 Yes. With single sign-on, your identity provider's MFA applies. For password sign-in, two-step sign-in with an authenticator app (TOTP) and single-use backup codes, which `[is required for every account]`.
 
 **What are your password rules?**
-At least 15 characters, at most 128, checked against the Have I Been Pwned breach list (k-anonymity: only a hash prefix leaves the server). Hashed with scrypt. Ten wrong passwords for one address within 15 minutes lock that address for 15 minutes.
+At least 8 characters, at most 128, checked against the Have I Been Pwned breach list (k-anonymity: only a hash prefix leaves the server). Hashed with scrypt. Ten wrong passwords for one address within 15 minutes lock that address for 15 minutes.
 
 **How do you limit sessions?**
 Sessions end after `[30 minutes]` without use and at most `[12 hours]` after sign-in. A user can sign out every device at once. Ending a session takes effect on the next request.

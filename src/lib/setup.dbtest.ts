@@ -147,7 +147,7 @@ test("setup without a support address is refused before any account exists", asy
   // Every field that needs attention is named at once.
   await assert.rejects(
     completeSetup(
-      { ...withoutSupportAddress, password: "too short" },
+      { ...withoutSupportAddress, password: "short" },
       {
         createAdminAccount: async () => {
           throw new Error("no account may be created");

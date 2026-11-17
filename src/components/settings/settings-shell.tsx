@@ -16,6 +16,11 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  MIN_PASSWORD_LENGTH,
+  passwordMinLengthHelper,
+  passwordTooShortMessage,
+} from "@/lib/password";
 
 const CLOSURE_CONFIRMATION_PHRASE = "close my account";
 const GENERIC_ERROR_MESSAGE = "Something went wrong. Please try again.";
@@ -95,8 +100,8 @@ function validatePasswordValues(values: PasswordValues): PasswordErrors {
     errors.currentPassword = "Enter your current password";
   }
 
-  if (values.newPassword.trim().length < 15) {
-    errors.newPassword = "Password must be at least 15 characters";
+  if (values.newPassword.trim().length < MIN_PASSWORD_LENGTH) {
+    errors.newPassword = passwordTooShortMessage;
   }
 
   return errors;
@@ -395,7 +400,7 @@ export function SettingsShell({
             ? "Current password is incorrect"
             : undefined,
           newPassword: isPasswordTooShortMessage(errorMessage)
-            ? "Password must be at least 15 characters"
+            ? passwordTooShortMessage
             : isCompromisedPasswordMessage(errorMessage)
               ? "Choose a password that hasn't appeared in a breach"
               : undefined,
@@ -624,7 +629,7 @@ export function SettingsShell({
                   <FieldShell
                     disabled={isBusy}
                     error={passwordErrors.newPassword}
-                    helper="Must be at least 15 characters"
+                    helper={passwordMinLengthHelper}
                     label="New password"
                     name="newPassword"
                     onChange={handlePasswordChange("newPassword")}
