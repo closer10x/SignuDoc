@@ -12,6 +12,7 @@ import {
   withTransaction,
 } from "../db/connection.ts";
 import { logAuditRecord } from "../security/logging.ts";
+import { dispatchEnvelopeWebhook } from "../crm-api/dispatch-webhook.ts";
 import { canonicalJson } from "../utils/canonical-json.ts";
 
 export type AuditEventMetadata = Record<string, unknown> | null;
@@ -257,6 +258,14 @@ async function insertChainedAuditEvent(
 
   afterCommit(database, () => {
     logAuditRecord({ ...fields, rowHash, trail: "envelope" });
+    // CRM callbacks ride the audit trail, which is written for every status
+    // change. Dispatch returns immediately; delivery never blocks signing.
+    dispatchEnvelopeWebhook({
+      createdAt,
+      envelopeId: input.envelopeId,
+      event: input.event,
+      metadata: fields.metadata,
+    });
   });
 
   return auditEventRecordSchema.parse({

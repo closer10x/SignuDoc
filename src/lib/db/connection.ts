@@ -69,11 +69,11 @@ export function getDb(): Pool {
  * Makes getDb() return this pool from now on, for tests that need the code
  * under test to use a pool of their own. Returns the pool it replaces.
  */
-export function replaceDbPoolForTests(pool: Pool): Pool | null {
+export function replaceDbPoolForTests(pool: Pool | null): Pool | null {
   const replaced = cachedPool;
 
   cachedPool = pool;
-  globalThis.__signudocPgPool = pool;
+  globalThis.__signudocPgPool = pool ?? undefined;
 
   return replaced;
 }

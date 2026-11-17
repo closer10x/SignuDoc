@@ -108,6 +108,10 @@ SignuDoc sends transactional email through Resend.
 - In hosted mode the support address is also the contact shown on the Terms, Privacy, and Accessibility pages.
 - For local development, `EMAIL_DRIVER=capture` writes each email to `.data/outbox` as a JSON file instead of sending it. Open the newest file to find a verification or signing link. This driver refuses to run in production.
 
+## CRM API
+
+Another system can create and track envelopes over HTTP. The calls use a bearer token (`SIGNUDOC_API_KEY`) and status changes can be posted back, signed with `SIGNUDOC_WEBHOOK_SECRET`. Envelopes created that way belong to the longest-standing administrator and show up on that account's dashboard. [CRM API](crm-api.md) has the endpoints and curl examples.
+
 ## Upload constraints
 
 Document import currently enforces these limits:

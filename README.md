@@ -142,7 +142,7 @@ DocuSign does more, and charges for it per user. SignuDoc does the everyday sign
 | **More than one document per envelope, and Word files** | — PDF only, one per envelope                                      | ✅                                                    |
 | **Signing at the same time**                            | — in order only                                                   | ✅                                                    |
 | **Bulk send, web forms, payments**                      | —                                                                 | ✅ on Business Pro                                    |
-| **API and webhooks**                                    | — not yet                                                         | ✅ API plans from $50 a month                         |
+| **API and webhooks**                                    | ✅ [server-to-server API and signed webhooks](docs/crm-api.md)    | ✅ API plans from $50 a month                         |
 | **Integrations**                                        | —                                                                 | ✅ 1,000+, including Salesforce, Microsoft and Google |
 | **Languages**                                           | — signing pages in English                                        | ✅ signing in 44 languages                            |
 | **Single sign-on**                                      | — email and password                                              | ✅ SAML SSO on Enhanced                               |

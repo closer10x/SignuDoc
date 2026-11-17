@@ -9,6 +9,8 @@ type SigningInvitationEmailInput = {
   envelopeTitle: string;
   /** The envelope's deadline, when it has one. */
   expiresAt?: number | null;
+  /** Optional note from the sender. Omitted, the invitation is unchanged. */
+  note?: string | null;
   senderName: string;
   signerEmail: string;
   signerName: string;
@@ -30,10 +32,12 @@ export function buildSigningInvitationEmail(
   const { productName } = input.branding;
   const subject = `${input.senderName} requested your signature on "${input.envelopeTitle}"`;
   const deadlineLine = buildDeadlineLine(input.expiresAt);
+  const note = input.note?.trim() ? input.note.trim() : null;
   const textBody = [
     `Hi ${input.signerName},`,
     "",
     `${input.senderName} sent you "${input.envelopeTitle}" through ${productName}.`,
+    ...(note ? ["", note] : []),
     "",
     "Review and sign the document here:",
     input.signingUrl,
@@ -45,6 +49,7 @@ export function buildSigningInvitationEmail(
   const htmlBody = [
     `<p>Hi ${escapeHtml(input.signerName)},</p>`,
     `<p>${escapeHtml(input.senderName)} sent you &ldquo;${escapeHtml(input.envelopeTitle)}&rdquo; through ${escapeHtml(productName)}.</p>`,
+    note ? `<p>${escapeHtml(note)}</p>` : "",
     `<p><a href="${escapeHtml(input.signingUrl)}">Review and sign the document</a></p>`,
     deadlineLine ? `<p>${escapeHtml(deadlineLine)}</p>` : "",
     `<p>You do not need a ${escapeHtml(productName)} account to sign.</p>`,
