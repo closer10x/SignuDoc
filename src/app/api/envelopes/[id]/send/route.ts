@@ -105,8 +105,16 @@ export async function POST(
         database: getDb(),
       },
     );
-
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json(
+      {
+        envelopeId: result.envelopeId,
+        expiresAt: result.expiresAt,
+        notifiedSignerName: result.notifiedSignerName,
+        redirectPath: result.redirectPath,
+        sentAt: result.sentAt,
+      },
+      { status: 200 },
+    );
   } catch (error) {
     if (error instanceof EnvelopeMutationError) {
       return NextResponse.json(

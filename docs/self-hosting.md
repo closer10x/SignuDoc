@@ -144,6 +144,8 @@ A deployment made with the button needs no environment variables. These are ther
 | `BACKUP_BLOB_READ_WRITE_TOKEN`, `BACKUP_KEEP_DAYS`  | A daily backup of the database and files to a second Blob store. See [Backup and restore](backup-and-restore.md).                                                                                      |
 | `AUDIT_LOG`                                         | `off` keeps audit rows out of the function logs. See [Send the audit trail to your SIEM](#send-the-audit-trail-to-your-siem).                                                                          |
 | `SSO_ISSUER`, `SSO_CLIENT_ID`, `SSO_CLIENT_SECRET`  | Sign in through your organization's identity provider (Okta, Entra ID, Google Workspace). `PASSWORD_SIGN_IN=off` then turns passwords off. See [Single sign-on](#single-sign-on).                      |
+| `SIGNUDOC_API_KEY`                                  | Bearer token for the server-to-server API. Without it every API call is refused. See [CRM API](crm-api.md).                                                                                            |
+| `SIGNUDOC_WEBHOOK_SECRET`                           | Signs status callbacks with HMAC-SHA256. Required before an envelope can name a callback URL. See [CRM API](crm-api.md).                                                                               |
 
 ## Set the site up
 

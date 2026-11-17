@@ -69,6 +69,7 @@ import {
   parseSignatureMeaning,
   signatureMeaningLabel,
 } from "./part11.ts";
+import { readEnvelopeNote } from "./crm-api/envelope-note.ts";
 import { getBranding, readStoredSettings } from "./settings.ts";
 import { type SignatureMeaning } from "./types/domain.ts";
 import { importPdfDocument } from "./services/document-import.ts";
@@ -153,6 +154,11 @@ type SendDraftEnvelopeInput = {
   senderEmail: string;
   senderName: string;
   userAgent?: string | null;
+  /**
+   * Optional note included in the signing invitation. Omitted, the
+   * invitation is unchanged.
+   */
+  message?: string | null;
 };
 
 type VoidEnvelopeInput = {
@@ -469,7 +475,10 @@ export type DraftEnvelopeResult = {
 
 export type ReplaceDraftSignersResult = ReplaceSignersResponse;
 export type ReplaceDraftFieldsResult = ReplaceFieldsResponse;
-export type SendDraftEnvelopeResult = SendEnvelopeResponse;
+export type SendDraftEnvelopeResult = SendEnvelopeResponse & {
+  /** The link emailed to the signer whose turn it is. */
+  signingUrl: string;
+};
 export type VoidEnvelopeResult = VoidEnvelopeResponse;
 export type CopyEnvelopeToDraftResult = CopyEnvelopeResponse;
 export type CorrectSentSignerResult = CorrectSentSignerResponse;
@@ -2632,6 +2641,7 @@ export async function sendDraftEnvelope(
           branding: await getBranding(),
           envelopeTitle: envelope.title,
           expiresAt,
+          note: input.message,
           senderName: input.senderName,
           signerEmail: firstSigner.email,
           signerName: firstSigner.name,
@@ -2718,13 +2728,16 @@ export async function sendDraftEnvelope(
     database,
   );
 
-  return sendEnvelopeResponseSchema.parse({
-    envelopeId,
-    expiresAt,
-    notifiedSignerName: firstSigner.name,
-    redirectPath: `/envelopes/${envelopeId}`,
-    sentAt,
-  });
+  return {
+    ...sendEnvelopeResponseSchema.parse({
+      envelopeId,
+      expiresAt,
+      notifiedSignerName: firstSigner.name,
+      redirectPath: `/envelopes/${envelopeId}`,
+      sentAt,
+    }),
+    signingUrl: issuedLink.url,
+  };
 }
 
 type ChangeEnvelopeDeadlineInput = {
@@ -3081,6 +3094,7 @@ export async function correctSentEnvelopeSigner(
             branding,
             envelopeTitle: envelope.title,
             expiresAt: envelope.expiresAt,
+            note: await readEnvelopeNote(envelopeId, tx),
             senderName: context.senderName,
             signerEmail: nextEmail,
             signerName: nextName,

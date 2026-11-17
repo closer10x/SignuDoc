@@ -43,6 +43,7 @@ import {
   signerRecordSchema,
   type CopyRecipientRecord,
 } from "./schemas/signer.ts";
+import { readEnvelopeNote } from "./crm-api/envelope-note.ts";
 import { getBranding } from "./settings.ts";
 import {
   checkSigningCredentials,
@@ -2632,6 +2633,7 @@ export async function submitSigningForToken(
             branding: await getBranding(),
             envelopeTitle: context.envelope.title,
             expiresAt: nextSignerDeadline,
+            note: await readEnvelopeNote(context.envelope.id, database),
             senderName: normalizeSenderName(context.sender),
             signerEmail: nextSignerDelivery.email,
             signerName: nextSignerDelivery.name,

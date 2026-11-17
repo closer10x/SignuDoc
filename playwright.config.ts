@@ -23,6 +23,9 @@ export const e2eDataDir = path.resolve(".data", "e2e");
 export const e2eOutboxDir = path.join(e2eDataDir, "outbox");
 // First-run setup asks for this, as it does on a deployment that sets one.
 export const e2eSetupToken = "e2e-setup-token";
+// The CRM API test signs its requests with these. They exist only for that test.
+export const e2eCrmApiKey = "e2e-crm-api-key-0123456789abcdef";
+export const e2eCrmWebhookSecret = "e2e-crm-webhook-secret-0123456789abcdef";
 // A stand-in for eID Easy, so the test can sign with a qualified
 // certificate in the signer's own name without the real service.
 const providerPort = Number(process.env.E2E_PROVIDER_PORT ?? port + 1);
@@ -35,6 +38,18 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      // The CRM API test runs afterwards: the signing-flow test claims a
+      // fresh install, so it has to be the first visitor.
+      testIgnore: /crm-api\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { height: 900, width: 1440 },
+      },
+    },
+    {
+      name: "crm-api",
+      dependencies: ["chromium"],
+      testMatch: /crm-api\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { height: 900, width: 1440 },
@@ -69,6 +84,8 @@ export default defineConfig({
         // The breach check calls an outside service; the test must not.
         PASSWORD_BREACH_CHECK: "off",
         SETUP_TOKEN: e2eSetupToken,
+        SIGNUDOC_API_KEY: e2eCrmApiKey,
+        SIGNUDOC_WEBHOOK_SECRET: e2eCrmWebhookSecret,
         // "local" unless E2E_STORAGE_DRIVER says otherwise. With "blob" and a
         // BLOB_READ_WRITE_TOKEN in the environment, the same test runs against
         // a real Vercel Blob store, direct browser upload included.
