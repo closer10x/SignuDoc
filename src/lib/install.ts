@@ -1,9 +1,27 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import type { Branding } from "./branding.ts";
 import { ServiceConfigurationError } from "./services/service-config.ts";
 import { getBranding, isFreshInstall } from "./settings.ts";
+
+
+const NOINDEX_HOSTS = new Set(["sign.allininsure.com"]);
+
+/** True when this request is the All In signing app, which should stay out of Google. */
+async function shouldNoindexSignHost(): Promise<boolean> {
+  const h = await headers();
+  return [h.get("x-forwarded-host"), h.get("host")]
+    .flatMap((value) => (value ? value.split(",") : []))
+    .map((value) => value.trim().toLowerCase().replace(/:\d+$/, ""))
+    .some((host) => NOINDEX_HOSTS.has(host));
+}
+
+function withSignHostRobots(metadata: Metadata, noindex: boolean): Metadata {
+  if (!noindex) return metadata;
+  return { ...metadata, robots: { index: false, follow: false } };
+}
 
 /**
  * Page title and description for an install that is not the hosted service:
@@ -11,6 +29,7 @@ import { getBranding, isFreshInstall } from "./settings.ts";
  * keeps what the root layout says.
  */
 export async function getInstallMetadata(): Promise<Metadata> {
+  const noindex = await shouldNoindexSignHost();
   let branding: Branding;
 
   try {
@@ -18,17 +37,20 @@ export async function getInstallMetadata(): Promise<Metadata> {
   } catch {
     // A page title is not worth failing a page over. Whatever went wrong
     // (no database, most likely) is reported by the page itself.
-    return {};
+    return withSignHostRobots({}, noindex);
   }
 
   if (branding.hosted) {
-    return {};
+    return withSignHostRobots({}, noindex);
   }
 
-  return {
-    description: `Send and sign documents with ${branding.productName}.`,
-    title: branding.productName,
-  };
+  return withSignHostRobots(
+    {
+      description: `Send and sign documents with ${branding.productName}.`,
+      title: branding.productName,
+    },
+    noindex,
+  );
 }
 
 /**
