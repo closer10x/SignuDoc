@@ -30,7 +30,7 @@ Document `[ID]`, version `[1.0]`, approved by `[name, role, date]`.
 | SIG-05 | Each signature shows the signer's printed name, the date and time (UTC), and its meaning. The same information appears in the certificate.               | 11.50(a), (b)  |
 | SIG-06 | The signer confirms the meaning of their signature before signing.                                                                                       | 11.50(a)(3)    |
 | SIG-07 | The signature is linked to its record, and the seal makes it impossible to copy onto another record undetected.                                          | 11.70          |
-| SIG-08 | Passwords are at least 8 characters long and are checked against known breached passwords.                                                              | 11.300(a), (b) |
+| SIG-08 | Passwords are at least 1 character long and are checked against known breached passwords.                                                              | 11.300(a), (b) |
 | SIG-09 | After five wrong passwords in a row while signing, the account can no longer sign until an administrator unlocks it, and every administrator is emailed. | 11.300(d)      |
 
 ## Procedural requirements (met by your procedures, not by the software)

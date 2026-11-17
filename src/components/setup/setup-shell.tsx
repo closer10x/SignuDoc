@@ -24,7 +24,7 @@ import {
   suggestSendingRootDomain,
   type SenderAddressParts,
 } from "@/lib/sending-domain";
-import { MIN_PASSWORD_LENGTH } from "@/lib/password";
+import { MIN_PASSWORD_LENGTH, passwordLengthUnit } from "@/lib/password";
 import type { SetupFieldName, SetupView } from "@/lib/setup";
 import { getEmailDomain, suggestSignupPolicy } from "@/lib/signup-policy";
 
@@ -488,7 +488,7 @@ function SetupForm({
               autoComplete="new-password"
               disabled={isSubmitting}
               error={errors.password}
-              helper={`At least ${String(MIN_PASSWORD_LENGTH)} characters. Let your password manager make one.`}
+              helper={`At least ${String(MIN_PASSWORD_LENGTH)} ${passwordLengthUnit}. Let your password manager make one.`}
               label="Password"
               maxLength={128}
               minLength={MIN_PASSWORD_LENGTH}
