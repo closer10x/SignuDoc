@@ -112,6 +112,8 @@
   html {
     background: var(--page);
     color: var(--fg);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -135,6 +137,17 @@
   select,
   textarea {
     font: inherit;
+  }
+
+  /*
+   * iOS Safari zooms the page when a field under 16px is focused, which
+   * makes the layout appear to shift. Keep text fields at 16px so the
+   * page stays put. Utility classes on the same element can still win.
+   */
+  input,
+  select,
+  textarea {
+    font-size: 1rem;
   }
 
   button {
@@ -340,7 +353,7 @@
     border-radius: 0.75rem;
     background: var(--paper);
     padding: 0.625rem 1rem;
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: var(--fg);
     outline: none;
     transition:

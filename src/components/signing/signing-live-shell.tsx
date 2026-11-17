@@ -1533,7 +1533,7 @@ function CurrentSignerField({
       >
         <input
           aria-label={getFieldLabel(field)}
-          className="h-full w-full border-none bg-transparent px-2 text-sm text-(--fg) outline-none placeholder:text-(--placeholder)"
+          className="h-full w-full border-none bg-transparent px-2 text-base text-(--fg) outline-none placeholder:text-(--placeholder)"
           id={`signing-field-${field.id}`}
           name={`signing-field-${field.id}`}
           onChange={(event) => onTextChange(event.target.value)}
@@ -1560,7 +1560,7 @@ function CurrentSignerField({
           aria-invalid={isInvalid ? true : undefined}
           aria-label={getFieldLabel(field)}
           autoComplete="off"
-          className="h-full w-full border-none bg-transparent px-2 text-sm text-(--fg) outline-none placeholder:text-(--placeholder)"
+          className="h-full w-full border-none bg-transparent px-2 text-base text-(--fg) outline-none placeholder:text-(--placeholder)"
           id={`signing-field-${field.id}`}
           inputMode="decimal"
           name={`signing-field-${field.id}`}
@@ -1581,7 +1581,7 @@ function CurrentSignerField({
       >
         <select
           aria-label={getFieldLabel(field)}
-          className={`h-full w-full cursor-pointer border-none bg-transparent bg-size-[0.75rem] bg-position-[right_0.25rem_center] pr-5 pl-1.5 text-sm outline-none ${
+          className={`h-full w-full cursor-pointer border-none bg-transparent bg-size-[0.75rem] bg-position-[right_0.25rem_center] pr-5 pl-1.5 text-base outline-none ${
             textValue ? "text-(--fg)" : "text-(--secondary)"
           }`}
           id={`signing-field-${field.id}`}

@@ -173,7 +173,7 @@ export function DashboardDocumentsPanel({
           <SearchIcon aria-hidden="true" className="size-4 shrink-0" />
           <input
             aria-label="Search by title or email..."
-            className="min-w-0 flex-1 bg-transparent py-2 text-sm text-(--fg) outline-none placeholder:text-(--placeholder)"
+            className="min-w-0 flex-1 bg-transparent py-2 text-base text-(--fg) outline-none placeholder:text-(--placeholder)"
             onChange={interactive ? onSearchChange : undefined}
             placeholder="Search by title or email..."
             readOnly={!interactive}
