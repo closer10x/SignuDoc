@@ -10,6 +10,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 type FieldShellProps = {
   autoComplete?: string;
@@ -79,6 +80,28 @@ export function FieldShell({
 }: FieldShellProps) {
   const generatedId = useId();
   const inputId = name ?? generatedId;
+  const sharedInputProps = {
+    "aria-describedby": name ? `${name}-description` : undefined,
+    "aria-invalid": error ? true : undefined,
+    autoComplete,
+    className: cn(
+      "read-only:text-muted-foreground",
+      error ? "border-(--danger)" : "",
+    ),
+    disabled,
+    id: inputId,
+    maxLength,
+    minLength,
+    name,
+    onChange,
+    placeholder,
+    readOnly,
+    value: value ?? "",
+    ...(ignorePasswordManagers
+      ? { "data-1p-ignore": "true", "data-lpignore": "true" }
+      : {}),
+    ...(passwordRules ? { passwordrules: passwordRules } : {}),
+  };
 
   return (
     <Field className="gap-2 text-sm">
@@ -88,29 +111,11 @@ export function FieldShell({
       >
         {label}
       </FieldLabel>
-      <Input
-        aria-describedby={name ? `${name}-description` : undefined}
-        aria-invalid={error ? true : undefined}
-        autoComplete={autoComplete}
-        className={cn(
-          "read-only:text-muted-foreground",
-          error ? "border-(--danger)" : "",
-        )}
-        disabled={disabled}
-        id={inputId}
-        maxLength={maxLength}
-        minLength={minLength}
-        name={name}
-        onChange={onChange}
-        placeholder={placeholder}
-        readOnly={readOnly}
-        type={type}
-        value={value ?? ""}
-        {...(ignorePasswordManagers
-          ? { "data-1p-ignore": "true", "data-lpignore": "true" }
-          : {})}
-        {...(passwordRules ? { passwordrules: passwordRules } : {})}
-      />
+      {type === "password" ? (
+        <PasswordInput {...sharedInputProps} />
+      ) : (
+        <Input type={type} {...sharedInputProps} />
+      )}
       {error ? (
         <FieldError
           className="text-xs font-semibold text-(--danger)"
