@@ -13,6 +13,7 @@ import {
 } from "../security/request.ts";
 import { authorizeCrmRequest } from "./auth.ts";
 import { CrmApiError } from "./errors.ts";
+import { resendRecipientStatus } from "./resend-recipient.ts";
 import { type CrmRequestMeta } from "./service.ts";
 
 const NO_STORE = { "cache-control": "private, no-store" };
@@ -51,6 +52,9 @@ export function crmRequestMeta(request: Request): CrmRequestMeta {
 }
 
 function mapCrmError(error: unknown): Response | null {
+  const recipient = resendRecipientStatus(error);
+  if (recipient) return crmError(recipient.message, recipient.status);
+
   if (error instanceof CrmApiError) {
     return crmError(error.message, error.statusCode);
   }
