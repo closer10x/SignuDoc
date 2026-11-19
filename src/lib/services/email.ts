@@ -121,6 +121,11 @@ function waitFor(milliseconds: number): Promise<void> {
   });
 }
 
+/** example.com and its siblings cannot receive mail. They are test recipients only. */
+export function isExampleRecipient(email: string): boolean {
+  return /@(example\.(com|org|net)|example\.email)$/i.test(email.trim());
+}
+
 function getResendErrorMessage(error: unknown): string {
   if (
     error &&
@@ -314,6 +319,18 @@ export function createEmailService({
 
   return {
     async send(message, options) {
+      // Resend refuses example.com and deletes nothing for us: the envelope
+      // would roll back and a test signer would have no page to open. These
+      // domains are never a real person, so the link is issued and no mail
+      // is sent.
+      if (isExampleRecipient(message.to)) {
+        return {
+          accepted: [message.to],
+          messageId: `skipped-example-domain`,
+          rejected: [],
+        };
+      }
+
       const config = await resolveAddresses();
       const { data, error } = await sendWithinRateLimit(
         () =>

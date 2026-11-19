@@ -2611,7 +2611,10 @@ export async function submitSigningForToken(
             envelopeId: signedAuditEvent.envelopeId,
             event: signedAuditEvent.event,
             ipAddress: signedAuditEvent.ipAddress,
-            metadata: signedAuditEvent.metadata,
+            metadata: {
+              ...(signedAuditEvent.metadata ?? {}),
+              nextSigningUrl: nextSignerLink.url,
+            },
             userAgent: signedAuditEvent.userAgent,
           },
           tx,

@@ -39,6 +39,8 @@ export type WebhookPayload = {
   envelopeId: string;
   event: string;
   externalId: string | null;
+  /** The next person's signing page, when this signature opened their turn. */
+  nextSigningUrl?: string;
   occurredAt: string;
   signer?: WebhookSigner;
   status: string;
@@ -50,6 +52,25 @@ type WebhookPostResult = {
   error: string | null;
   statusCode: number | null;
 };
+
+/** A signing page for the person whose turn just opened. Anything else is ignored. */
+export function nextSigningUrlFromMetadata(
+  metadata: Record<string, unknown> | null,
+): string | null {
+  const value = metadata?.nextSigningUrl;
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const url = value.trim();
+
+  if (!url.startsWith("https://") || url.length > 500 || /\s/.test(url)) {
+    return null;
+  }
+
+  return url;
+}
 
 export function signerFromMetadata(
   metadata: Record<string, unknown> | null,
@@ -88,6 +109,10 @@ export function serializeWebhookPayload(payload: WebhookPayload): string {
       name: payload.signer.name,
       email: payload.signer.email,
     };
+  }
+
+  if (payload.nextSigningUrl) {
+    body.nextSigningUrl = payload.nextSigningUrl;
   }
 
   body.occurredAt = payload.occurredAt;
@@ -242,10 +267,12 @@ export async function deliverEnvelopeWebhook(
   }
 
   const signer = signerFromMetadata(source.metadata);
+  const nextSigningUrl = nextSigningUrlFromMetadata(source.metadata);
   const body = serializeWebhookPayload({
     envelopeId: source.envelopeId,
     event: source.event,
     externalId: row.externalId,
+    ...(nextSigningUrl ? { nextSigningUrl } : {}),
     occurredAt: unixToIso(source.createdAt) ?? new Date(0).toISOString(),
     ...(signer ? { signer } : {}),
     status: publicEnvelopeStatus(row, source.createdAt),

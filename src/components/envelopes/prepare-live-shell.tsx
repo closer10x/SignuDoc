@@ -1480,6 +1480,32 @@ function FieldEditor({
           </div>
         </div>
 
+        {field.type === "text" || field.type === "number" || field.type === "date" ? (
+          <div>
+            <label
+              className="block px-1 text-[0.8125rem] font-semibold text-(--secondary)"
+              htmlFor={labelId}
+            >
+              Label
+            </label>
+            <input
+              aria-describedby={`${labelId}-help`}
+              className="field-input mt-2"
+              id={labelId}
+              maxLength={120}
+              onChange={(event) => {
+                setLabelDraft(event.target.value);
+                onSetLabel(event.target.value.trim() || undefined);
+              }}
+              placeholder="Legal Name"
+              value={shownLabel}
+            />
+            <p className="mt-1.5 px-1 text-xs leading-5 text-(--tertiary)" id={`${labelId}-help`}>
+              Shown inside the box. Empty keeps the word “{tool.label}”.
+            </p>
+          </div>
+        ) : null}
+
         {field.type === "dropdown" ? (
           <div>
             <label
