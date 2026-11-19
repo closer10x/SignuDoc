@@ -1,7 +1,3 @@
-import { createRequire } from "node:module";
-import path from "node:path";
-import { pathToFileURL } from "node:url";
-
 import { getDb, queryMany, queryOne, type DbPool } from "../db/connection.ts";
 import {
   deleteDraftEnvelope,
@@ -350,77 +346,25 @@ export async function saveDraftAsTemplate(
   return saved;
 }
 
-function installPdfDomShims() {
-  if (typeof globalThis.DOMMatrix !== "undefined") return;
+export async function readTemplatePdf(
+  templateId: string,
+  database: DbPool = getDb(),
+): Promise<{ bytes: Uint8Array; filename: string }> {
+  const { row } = await templateForOwner(templateId, database);
+  const stored = await createStorageService().getObject(row.sourcePdfKey);
 
-  class DOMMatrixShim {
-    a = 1;
-    b = 0;
-    c = 0;
-    d = 1;
-    e = 0;
-    f = 0;
-
-    constructor(init?: number[]) {
-      if (Array.isArray(init) && init.length >= 6) {
-        [this.a, this.b, this.c, this.d, this.e, this.f] = init;
-      }
-    }
-  }
-
-  Object.assign(globalThis, { DOMMatrix: DOMMatrixShim });
-}
-
-async function pageText(pdf: Uint8Array): Promise<PageText[]> {
-  installPdfDomShims();
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const workerFile = createRequire(import.meta.url).resolve(
-    "pdfjs-dist/legacy/build/pdf.worker.mjs",
-  );
-  const fontDir = path.resolve(path.dirname(workerFile), "../../standard_fonts");
-  pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerFile).href;
-  const document = await pdfjs.getDocument({
-    data: Uint8Array.from(pdf),
-    isEvalSupported: false,
-    standardFontDataUrl: `${pathToFileURL(fontDir).href}/`,
-    useSystemFonts: true,
-  }).promise;
-  const texts: PageText[] = [];
-
-  for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
-    const page = await document.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: 1 });
-    const content = await page.getTextContent();
-
-    for (const item of content.items) {
-      if (!("str" in item) || typeof item.str !== "string" || !item.str.trim()) {
-        continue;
-      }
-
-      const transform = item.transform;
-      const x = transform[4] / viewport.width;
-      const y = 1 - transform[5] / viewport.height;
-
-      texts.push({
-        page: pageNumber,
-        text: item.str.trim(),
-        x,
-        y,
-      });
-    }
-  }
-
-  return texts;
+  return {
+    bytes: stored.body,
+    filename: `${row.name.replace(/[^\w.-]+/g, "_").slice(0, 80) || "template"}.pdf`,
+  };
 }
 
 export async function previewTemplateLabels(
   templateId: string,
+  texts: PageText[] = [],
   database: DbPool = getDb(),
 ): Promise<{ index: number; label: string; page: number; type: string }[]> {
   const detail = await getTemplateForApi(templateId, database);
-  const { row } = await templateForOwner(templateId, database);
-  const stored = await createStorageService().getObject(row.sourcePdfKey);
-  const texts = await pageText(stored.body);
   const matches = matchFieldLabels(
     detail.fields.map((field) => ({
       height: field.height,
