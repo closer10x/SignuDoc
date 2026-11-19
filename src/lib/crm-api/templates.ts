@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { getDb, queryMany, queryOne, type DbPool } from "../db/connection.ts";
@@ -376,10 +377,12 @@ async function pageText(pdf: Uint8Array): Promise<PageText[]> {
   const workerFile = createRequire(import.meta.url).resolve(
     "pdfjs-dist/legacy/build/pdf.worker.mjs",
   );
+  const fontDir = path.resolve(path.dirname(workerFile), "../../standard_fonts");
   pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerFile).href;
   const document = await pdfjs.getDocument({
-    data: pdf,
+    data: Uint8Array.from(pdf),
     isEvalSupported: false,
+    standardFontDataUrl: `${pathToFileURL(fontDir).href}/`,
     useSystemFonts: true,
   }).promise;
   const texts: PageText[] = [];
