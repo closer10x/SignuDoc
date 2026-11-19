@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { DownloadAccessError } from "../downloads.ts";
 import { EnvelopeMutationError } from "../envelopes.ts";
 import { ReminderMutationError } from "../reminders.ts";
+import { TemplateError } from "../templates.ts";
 import { DocumentImportError } from "../services/document-import.ts";
 import { logRouteError } from "../security/logging.ts";
 import {
@@ -71,6 +72,10 @@ function mapCrmError(error: unknown): Response | null {
     error instanceof EnvelopeMutationError ||
     error instanceof DownloadAccessError
   ) {
+    return crmError(error.message, error.statusCode);
+  }
+
+  if (error instanceof TemplateError) {
     return crmError(error.message, error.statusCode);
   }
 

@@ -219,6 +219,7 @@ export async function createEnvelopeFromApi(
 
           return {
             height: rect.height,
+            label: field.label,
             page: field.page,
             required: field.required,
             signerId,

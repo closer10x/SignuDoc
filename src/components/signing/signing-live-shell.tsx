@@ -1537,7 +1537,7 @@ function CurrentSignerField({
           id={`signing-field-${field.id}`}
           name={`signing-field-${field.id}`}
           onChange={(event) => onTextChange(event.target.value)}
-          placeholder={showInlineLabel ? getFieldLabel(field) : ""}
+          placeholder={getFieldLabel(field)}
           value={textValue}
         />
       </div>
@@ -1565,7 +1565,7 @@ function CurrentSignerField({
           inputMode="decimal"
           name={`signing-field-${field.id}`}
           onChange={(event) => onTextChange(event.target.value)}
-          placeholder={showInlineLabel ? "Number" : ""}
+          placeholder={getFieldLabel(field)}
           value={textValue}
         />
       </div>

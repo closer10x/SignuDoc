@@ -37,6 +37,7 @@ const copyInputSchema = z.object({
 
 const fieldInputSchema = z.object({
   height: z.number().finite().positive(),
+  label: z.string().trim().max(120).optional(),
   page: z.number().int().positive(),
   required: z.boolean().optional(),
   signerIndex: z.number().int().nonnegative(),
@@ -119,6 +120,7 @@ const createMetadataSchema = z
 
 export type ApiFieldInput = {
   height: number;
+  label?: string;
   page: number;
   required: boolean;
   signerIndex: number;
