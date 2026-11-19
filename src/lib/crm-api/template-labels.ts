@@ -41,35 +41,38 @@ export type PageText = {
 
 const FILLABLE = new Set(["text", "number", "date"]);
 
+const EXHIBIT_CAPTIONS = [
+  "Line of business / product",
+  "Carrier or market (optional)",
+  "Notes",
+];
+
 function canonicalCaption(text: string): string | null {
   const compact = text.replace(/\s+/g, " ").trim();
 
-  if (!compact || compact.length > 48) {
+  if (!compact || compact.length > 60) {
     return null;
   }
 
   const lower = compact.toLowerCase();
 
-  for (const caption of CONTRACTOR_CAPTIONS) {
-    if (lower.includes(caption.toLowerCase())) {
+  for (const caption of [...CONTRACTOR_CAPTIONS, ...EXHIBIT_CAPTIONS]) {
+    if (lower === caption.toLowerCase() || lower.includes(caption.toLowerCase())) {
       return caption;
     }
   }
 
-  if (lower === "zip code" || lower === "zipcode") return "ZIP";
-  if (lower.includes("e&o") || lower.includes("e & o")) return "E&O Minimum $";
-  if (lower.includes("dba") || lower.includes("business name")) return "Business Name / DBA";
-  if (lower.includes("license no") || lower.includes("license number")) return "License #";
-  if (lower === "title") return "Contractor Title";
-
-  // Exhibit rows and columns are short headings, not sentences.
-  if (
-    compact.length <= 32 &&
-    !/[.!?]$/.test(compact) &&
-    compact.split(" ").length <= 5
-  ) {
-    return compact;
-  }
+  if (lower.includes("e&o") || lower.includes("e & o") || lower.includes("errors and omissions")) return "E&O Minimum $";
+  if (lower.includes("termination")) return "Termination Notice Days";
+  if (lower.includes("chargeback")) return "Chargeback Days";
+  if (lower.includes("payment day") || lower === "payment timing") return "Payment Days";
+  if (lower.includes("vested month") || lower === "vested for") return "Vested Months";
+  if (lower.includes("license state")) return "License State";
+  if (lower.includes("license #") || lower.includes("license no") || lower.includes("license number")) return "License #";
+  if (lower.includes("printed name")) return "Printed Name";
+  if (lower === "contractor title" || lower === "title") return "Contractor Title";
+  if (lower.includes("new business")) return "New Business %";
+  if (lower.includes("renewal")) return "Renewal %";
 
   return null;
 }
@@ -87,7 +90,7 @@ export function matchFieldLabels(
   fields: readonly LabelField[],
   texts: readonly PageText[],
 ): { index: number; label: string }[] {
-  const used = new Set<string>();
+  const usedText = new Set<string>();
   const matches: { index: number; label: string }[] = [];
 
   fields.forEach((field, index) => {
@@ -95,17 +98,18 @@ export function matchFieldLabels(
       return;
     }
 
-    let best: { distance: number; label: string } | null = null;
+    let best: { distance: number; label: string; textKey: string } | null = null;
 
     for (const text of texts) {
       if (text.page !== field.page) continue;
       const caption = canonicalCaption(text.text);
-      if (!caption || used.has(`${field.page}:${caption.toLowerCase()}`)) continue;
+      const textKey = `${text.page}:${text.x.toFixed(3)}:${text.y.toFixed(3)}:${text.text}`;
+      if (!caption || usedText.has(textKey)) continue;
 
       const above =
         overlapsX(field, text) &&
         text.y <= field.y + 0.012 &&
-        field.y - text.y <= 0.07;
+        field.y - text.y <= 0.11;
       const beside =
         text.x < field.x &&
         field.x - text.x <= 0.28 &&
@@ -118,13 +122,13 @@ export function matchFieldLabels(
         : field.x - text.x + 0.02;
 
       if (!best || distance < best.distance) {
-        best = { distance, label: caption };
+        best = { distance, label: caption, textKey };
       }
     }
 
     if (!best) return;
 
-    used.add(`${field.page}:${best.label.toLowerCase()}`);
+    usedText.add(best.textKey);
     matches.push({ index, label: best.label });
   });
 
