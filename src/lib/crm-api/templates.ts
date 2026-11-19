@@ -1,3 +1,6 @@
+import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
+
 import { getDb, queryMany, queryOne, type DbPool } from "../db/connection.ts";
 import {
   deleteDraftEnvelope,
@@ -370,9 +373,12 @@ function installPdfDomShims() {
 async function pageText(pdf: Uint8Array): Promise<PageText[]> {
   installPdfDomShims();
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const workerFile = createRequire(import.meta.url).resolve(
+    "pdfjs-dist/legacy/build/pdf.worker.mjs",
+  );
+  pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerFile).href;
   const document = await pdfjs.getDocument({
     data: pdf,
-    disableWorker: true,
     isEvalSupported: false,
     useSystemFonts: true,
   }).promise;
