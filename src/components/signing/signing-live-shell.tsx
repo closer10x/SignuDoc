@@ -560,6 +560,23 @@ export function SigningLiveShell({
     hasInvalidNumber(field, textValues),
   ).length;
   const canFinish = remainingFields === 0 && invalidNumberCount === 0;
+  const nextRequired = [...record.currentSignerFields]
+    .filter(
+      (field) =>
+        field.required &&
+        !isFieldComplete(field, record.currentSignerFields, enteredValues),
+    )
+    .sort((left, right) => left.page - right.page || left.y - right.y || left.x - right.x)[0];
+
+  function jumpToNextRequired() {
+    if (!nextRequired) return;
+    setActivePage(nextRequired.page);
+    window.setTimeout(() => {
+      const anchor = document.getElementById(`signing-anchor-${nextRequired.id}`);
+      anchor?.scrollIntoView({ block: "center", inline: "center" });
+      if (anchor instanceof HTMLElement) anchor.focus({ preventScroll: true });
+    }, 60);
+  }
   const requiredFieldCount = countAnswerableFields(
     record.currentSignerFields,
     (field) => field.required,
@@ -1063,7 +1080,17 @@ export function SigningLiveShell({
                 </p>
               </div>
 
-              <div className="mt-4">
+                {nextRequired ? (
+                  <button
+                    className="btn-quiet mt-3 w-full"
+                    data-testid="next-required-field"
+                    onClick={jumpToNextRequired}
+                    type="button"
+                  >
+                    Next required field · page {nextRequired.page}
+                  </button>
+                ) : null}
+                <div className="mt-4">
                 <ShellButton
                   className="w-full"
                   disabled={!canFinish || isDeclining || isSubmitting}
@@ -1094,7 +1121,7 @@ export function SigningLiveShell({
                     )}
                     isInvalid={hasInvalidNumber(field, textValues)}
                     key={field.id}
-                    label={`${getSummaryLabel(field)} · Page ${field.page}`}
+                    label={`${getFieldLabel(field)} · Page ${field.page}`}
                     value={getCompletionValue(
                       field,
                       record.currentSignerFields,
@@ -1459,13 +1486,14 @@ function CurrentSignerField({
   if (field.type === "signature" || field.type === "initials") {
     return (
       <button
-        aria-label={getSummaryLabel(field)}
+        aria-label={getFieldLabel(field)}
         className={`absolute z-2 overflow-hidden rounded-[0.375rem] border-2 border-(--accent) text-(--accent-ink) transition ${
           signatureEntry?.value
             ? "bg-[rgb(var(--accent-rgb)/0.10)]"
             : "bg-[rgb(var(--accent-rgb)/0.07)] hover:bg-[rgb(var(--accent-rgb)/0.16)]"
         }`}
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         onClick={onSignatureClick}
         style={frame}
         type="button"
@@ -1513,6 +1541,7 @@ function CurrentSignerField({
       <div
         className="absolute z-2 overflow-hidden rounded-[0.375rem] border border-(--border-strong) bg-white/92 text-sm text-(--fg)"
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         style={frame}
       >
         {showInlineValue ? (
@@ -1529,6 +1558,7 @@ function CurrentSignerField({
       <div
         className="absolute z-2 overflow-hidden rounded-[0.375rem] border-2 border-(--accent) bg-[rgb(var(--accent-rgb)/0.07)] focus-within:bg-white"
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         style={frame}
       >
         <input
@@ -1553,6 +1583,7 @@ function CurrentSignerField({
             : "border-(--accent) bg-[rgb(var(--accent-rgb)/0.07)]"
         }`}
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         style={frame}
         title={isInvalid ? NUMBER_ENTRY_MESSAGE : undefined}
       >
@@ -1577,6 +1608,7 @@ function CurrentSignerField({
       <div
         className="absolute z-2 overflow-hidden rounded-[0.375rem] border-2 border-(--accent) bg-[rgb(var(--accent-rgb)/0.07)] focus-within:bg-white"
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         style={frame}
       >
         <select
@@ -1613,6 +1645,7 @@ function CurrentSignerField({
             : "bg-white hover:bg-[rgb(var(--accent-rgb)/0.10)]"
         }`}
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         // An answer that is needed can be changed but not taken back; one
         // that is optional can be cleared by choosing it again.
         onClick={() => onCheckboxChange(field.required ? true : !checkboxValue)}
@@ -1640,6 +1673,7 @@ function CurrentSignerField({
           : "bg-white hover:bg-[rgb(var(--accent-rgb)/0.10)]"
       }`}
       data-signing-field="true"
+      id={`signing-anchor-${field.id}`}
       onClick={() => onCheckboxChange(!checkboxValue)}
       style={frame}
       type="button"
@@ -1674,6 +1708,7 @@ function VisibleFieldStamp({ field }: { field: SigningVisibleField }) {
       <div
         className="pointer-events-none absolute z-1 flex items-center justify-center rounded-full border border-(--border-strong) bg-[rgba(28,29,43,0.03)]"
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         style={frame}
       >
         {field.checked ? (
@@ -1691,6 +1726,7 @@ function VisibleFieldStamp({ field }: { field: SigningVisibleField }) {
       <div
         className="pointer-events-none absolute z-1 flex items-center justify-center rounded-[0.25rem] border border-(--border-strong) bg-[rgba(28,29,43,0.03)]"
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         style={frame}
       >
         {field.checked ? (
@@ -1721,6 +1757,7 @@ function VisibleFieldStamp({ field }: { field: SigningVisibleField }) {
       <div
         className="pointer-events-none absolute z-1 overflow-hidden rounded-[0.375rem] border border-(--border-strong) bg-[rgba(28,29,43,0.03)]"
         data-signing-field="true"
+        id={`signing-anchor-${field.id}`}
         style={frame}
       >
         <Image
@@ -1738,6 +1775,7 @@ function VisibleFieldStamp({ field }: { field: SigningVisibleField }) {
     <div
       className="pointer-events-none absolute z-1 overflow-hidden rounded-[0.375rem] border border-(--border-strong) bg-[rgba(28,29,43,0.03)] text-(--secondary)"
       data-signing-field="true"
+      id={`signing-anchor-${field.id}`}
       style={frame}
     >
       <div className="flex h-full w-full items-center overflow-hidden px-1">
