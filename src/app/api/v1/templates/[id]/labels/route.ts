@@ -1,10 +1,7 @@
 import { z } from "zod";
 
 import { crmJson, requireCrmApiKey, withCrmErrors } from "@/lib/crm-api/http";
-import {
-  applyTemplateLabels,
-  previewTemplateLabels,
-} from "@/lib/crm-api/templates";
+import { applyTemplateLabels, getTemplateForApi } from "@/lib/crm-api/templates";
 
 const bodySchema = z.object({
   labels: z
@@ -28,9 +25,15 @@ export async function GET(request: Request, context: RouteContext) {
 
   const { id } = await context.params;
 
-  return withCrmErrors(request, async () =>
-    crmJson({ labels: await previewTemplateLabels(id) }),
-  );
+  return withCrmErrors(request, async () => {
+    const template = await getTemplateForApi(id);
+
+    return crmJson({
+      fields: template.fields.filter(
+        (field) => field.type === "text" || field.type === "number" || field.type === "date",
+      ),
+    });
+  });
 }
 
 export async function POST(request: Request, context: RouteContext) {
