@@ -38,6 +38,7 @@ const nextConfig: NextConfig = {
     "/api/**": [
       "./src/assets/fonts/*.ttf",
       "./node_modules/harfbuzzjs/dist/harfbuzz-subset.wasm",
+      "./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs",
     ],
   },
 };
