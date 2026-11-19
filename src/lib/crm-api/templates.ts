@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { getDb, queryMany, queryOne, type DbPool } from "../db/connection.ts";
@@ -373,13 +374,14 @@ function installPdfDomShims() {
 async function pageText(pdf: Uint8Array): Promise<PageText[]> {
   installPdfDomShims();
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const workerFile = createRequire(import.meta.url).resolve(
-    "pdfjs-dist/legacy/build/pdf.worker.mjs",
-  );
+  const nodeRequire = createRequire(import.meta.url);
+  const workerFile = nodeRequire.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
+  const fontDir = path.dirname(nodeRequire.resolve("pdfjs-dist/standard_fonts/FoxitSerif.pfb"));
   pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerFile).href;
   const document = await pdfjs.getDocument({
-    data: pdf,
+    data: Uint8Array.from(pdf),
     isEvalSupported: false,
+    standardFontDataUrl: `${pathToFileURL(fontDir).href}/`,
     useSystemFonts: true,
   }).promise;
   const texts: PageText[] = [];
